@@ -6,6 +6,7 @@ import { useState } from "react";
 const SignUp = () => {
 
 	const [errorMessage, setErrorMessage] = useState('');
+	const [success, setSuccess] = useState(false);
 
 	const handleSignUp = e => {
 		e.preventDefault();
@@ -16,15 +17,32 @@ const SignUp = () => {
 
 		//reset error message
 		setErrorMessage('');
+		setSuccess(false);
+
+		if(password.length < 6){
+			setErrorMessage('password should be 6 character or longer');
+			return;
+		}
+
+
+		const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+
+		if(!passwordRegex.test(password)){
+			setErrorMessage('At least one uppercase, one number, one lowercase, one special character');
+			return;
+		}
+
 
 		//create firebase authentication
 		createUserWithEmailAndPassword(auth, email, password)
 			.then(result => {
 				console.log(result.user);
+				setSuccess(true);
 			})
 			.catch(error => {
-				console.log('errror',error.message);
-				setErrorMessage(error.message)
+				console.log('error',error.message);
+				setErrorMessage(error.message);
+				setSuccess(false);
 			})
 	}
 	return (
@@ -55,6 +73,10 @@ const SignUp = () => {
 					</form>
 					{
 						errorMessage && <p className="text-red-500">{errorMessage}</p>
+					}
+
+					{
+						success && <p className="text-green-600">Sign up Successful.</p>
 					}
 				</div>
 
